@@ -75,7 +75,7 @@ void data(Pion *plateau,double tabEuristique[8]){
 	double tab[8] = {nombre_noire,distance_noire_moyenne,distance_noire_min,nombre_blanche,distance_blanche_moyenne,
 	distance_blanche_min,somme_valeur_blanche,somme_valeur_noire};
 
-	#ifdef DEBUG
+	
 		printf("Nombre de pion noirs restants : %f\n",tab[0]);
 		printf("Distance moyenne des pions noirs vers l'arrivée : %f\n",tab[1]);
 		printf("Distance minimale d'un pion noir vers l'arrivée : %f\n",tab[2]);
@@ -84,7 +84,7 @@ void data(Pion *plateau,double tabEuristique[8]){
 		printf("Distance minimale d'un pion blanc vers l'arrivée : %f\n",tab[5]);
 		printf("Somme valeur des pions blancs : %f\n",tab[6]);
 		printf("Somme valeur des pions noirs : %f\n",tab[7]);
-	#endif
+	
 
 	for(i = 0;i < 8;i++){
 		tabEuristique[i] = tab[i];
@@ -517,7 +517,7 @@ double f_eval(Pion * plateau,int joueur)
 		tabEuristique[7] = BRAVO * tabEuristique[7] / VALEUR_PION_MAX;
 		tabEuristique[1] = CHARLIE * tabEuristique[1] / (NB_LIGNES-1);
 		tabEuristique[2] = DELTA * tabEuristique[2] / (NB_LIGNES - 1);
-		valeur = tabEuristique[0] + tabEuristique[7] + tabEuristique[1] +tabEuristique[2];	
+		valeur = tabEuristique[0] + tabEuristique[7] -tabEuristique[1] +tabEuristique[2];	
 		//#ifdef DEBUG
 		printf("Valeur du pion noir : %f\n",valeur);
 		//#endif
@@ -528,7 +528,7 @@ double f_eval(Pion * plateau,int joueur)
 		tabEuristique[6] = BRAVO * tabEuristique[6] / VALEUR_PION_MAX;
 		tabEuristique[4] = CHARLIE * tabEuristique[4] / (NB_LIGNES-1);
 		tabEuristique[5] = DELTA * tabEuristique[5] / (NB_LIGNES - 1);
-		valeur = tabEuristique[3] + tabEuristique[6] + tabEuristique[4] +tabEuristique[5];
+		valeur = tabEuristique[3] + tabEuristique[6] - tabEuristique[4] +tabEuristique[5];
 		//#ifdef DEBUG
 		printf("Valeur du pion blanc : %f\n",valeur);
 		//#endif
@@ -734,12 +734,12 @@ int main(int argv, char *argc[])
 	f_eval(plateauDeJeu,joueur);
 	printf("1 humain vs IA\n2 humain vs humain\n3 IA vs IA\n");
 	scanf("%d",&mode);
-	f_affiche_plateau(plateauDeJeu);
 	while (!fin)
 	{
-		//f_affiche_plateau(plateauDeJeu);
+		f_affiche_plateau(plateauDeJeu);
 		if(mode==1)
 		{
+			f_affiche_plateau(plateauDeJeu);
 			if(joueur>0)
 				f_humain(joueur);
 			else
