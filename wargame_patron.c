@@ -25,6 +25,10 @@ typedef struct pion_s
 }Pion;
 
 Pion *plateauDeJeu;
+int nb_appels = 0;
+int nb_noeuds_visites = 0;
+int nb_noeuds_totals = 0;
+double total_time = 0.0;
 
 void f_affiche_plateau(Pion *plateau);
 int f_convert_char2int(char c);
@@ -475,7 +479,7 @@ double f_eval(Pion * plateau,int joueur)
 		tabEuristique[7] = BRAVO * tabEuristique[7] / VALEUR_PION_MAX;
 		tabEuristique[1] = CHARLIE * tabEuristique[1] / (NB_LIGNES-1);
 		tabEuristique[2] = DELTA * tabEuristique[2] / (NB_LIGNES - 1);
-		valeur = tabEuristique[0] + tabEuristique[7] -tabEuristique[1] -tabEuristique[2];	
+		valeur = tabEuristique[0] + tabEuristique[7] -tabEuristique[1] -tabEuristique[2];
 		#ifdef DEBUG
 		printf("Valeur du pion noir : %f\n",valeur);
 		#endif
@@ -527,7 +531,7 @@ Pion* f_raz_plateau()
 
 //Fonction min trouve le minimum des noeuds fils
 double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2,int *c2)
-{	
+{
 	int ll1 = *l1;
 	int lc1 = *c1;
 	int ll2 = *l2;
@@ -553,6 +557,7 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 							if((!f_test_mouvement(plateau, i, j, l, k, joueur))&&((l != i)&&(k !=j))){
 								f_copie_plateau(plateau,copie);
 								f_bouge_piece(copie,i,j,l,k,joueur);
+								nb_noeuds_visites ++;
 								double val = f_max(copie, -joueur, profondeur+1, &ll1, &lc1, &ll2, &lc2);
 
 								#ifdef DEBUG
@@ -571,14 +576,17 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 					}
 				}
 			}
-		}				
-		return val_min;		
-	}	
+		}
+		nb_noeuds_totals += nb_noeuds_visites;
+		nb_noeuds_visites = 0;
+
+		return val_min;
+	}
 }
 
 //Fonction max trouve le maximum des noeuds fils
 double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2,int* c2)
-{	
+{
 	int ll1 = *l1;
 	int lc1 = *c1;
 	int ll2 = *l2;
@@ -590,7 +598,7 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 	#endif
 	//printf("")
 	Pion* copie[NB_COLONNES*NB_LIGNES];
-	
+
 	double val_max = FLT_MIN;
 	if(profondeur == PROFONDEUR_MAX){
 		return f_eval(plateau,joueur);
@@ -602,13 +610,14 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 					for(k = j-1;k <= j+1; k++){
 						for(l = i-1;l <= i+1;l++){
 							if((!f_test_mouvement(plateau, i, j, l, k, joueur))&&((l != i)&&(k !=j))){
-								
+
 								#ifdef DEBUG
 									printf("i = %d;j = %d;k = %d;l = %d\n",i,j,k,l);
 								#endif
 
 								f_copie_plateau(plateau,copie);
 								f_bouge_piece(copie,i,j,l,k,joueur);
+								nb_noeuds_visites ++;
 								double val = f_min(copie, -joueur, profondeur+1, &ll1, &lc1, &ll2, &lc2);
 								if(val > val_max){
 									val_max = val;
@@ -627,13 +636,15 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 					}
 				}
 			}
-		}	
+		}
+		nb_noeuds_totals += nb_noeuds_visites;
+		nb_noeuds_visites = 0;
 
-		#ifdef DEBUG			
+		#ifdef DEBUG
 			printf("RETURN %f\n",val_max);
 		#endif
-		return val_max;	
-	}			
+		return val_max;
+	}
 }
 
 /**
@@ -646,8 +657,18 @@ void f_IA(int joueur,Pion* plateau)
 	int l2 = 0;
 	int c2 = 0;
 	double valeur;
-	valeur = f_max(plateau,joueur,0,&l1,&c1,&l2,&c2);
 
+	struct timeval  begin, end;
+
+
+	nb_appels ++;
+	gettimeofday(&begin, NULL);
+	valeur = f_max(plateau,joueur,0,&l1,&c1,&l2,&c2);
+	gettimeofday(&end, NULL);
+
+	double tmp = (double) (end.tv_usec - begin.tv_usec) / 1000000 + (double) (end.tv_sec - begin.tv_sec);
+	printf ("Temps de calcul: %f sec\n", tmp);
+	total_time += tmp;
 	f_bouge_piece(plateau,l1,c1,l2,c2,joueur);
 
 #ifdef DEBUG
@@ -728,12 +749,12 @@ int main(int argv, char *argc[])
 			{
 			case 1:
 				f_affiche_plateau(plateauDeJeu);
-				printf("joueur x gagne!\n");
+				printf("\njoueur x gagne!\n");
 				fin = 1;
 				break;
 			case -1:
 				f_affiche_plateau(plateauDeJeu);
-				printf("joueur o gagne!\n");
+				printf("\njoueur o gagne!\n");
 				fin = 1;
 				break;
 			}
@@ -741,7 +762,14 @@ int main(int argv, char *argc[])
 		joueur = -joueur;
 	}
 
+	printf("\n###########################################################\n");
+	printf("\t\t\tSTATISTIQUES\n");
+	printf("Profondeur : %d\n", PROFONDEUR_MAX);
+	printf("Temps total d'execution : %f sec\t Moyenne de %f ms par tour\n", total_time,
+																																				total_time/nb_appels*1000);
+	printf("%d noeuds explores au total\t Moyenne de %d par tour\n", nb_noeuds_totals,
+																														 			 nb_noeuds_totals/nb_appels);
+	printf("###########################################################\n");
 
 	return 0;
 }
-
