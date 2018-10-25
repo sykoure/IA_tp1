@@ -93,9 +93,7 @@ void data(Pion *plateau,double tabEuristique[8]){
 
 int f_convert_char2int(char c)
 {
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
+
 	if(c>='A' && c<='Z')
 		return (int)(c-'A');
 	if(c>='a' && c<='z')
@@ -105,9 +103,7 @@ int f_convert_char2int(char c)
 
 char f_convert_int2char(int i)
 {
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
+
 
 	return (char)i+'A';
 }
@@ -118,9 +114,7 @@ Pion *f_init_plateau0()
 	Pion *plateau=NULL;
 
 
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
+
 
 	plateau = (Pion *)malloc(NB_LIGNES*NB_COLONNES*sizeof(Pion));
 	if(plateau == NULL)
@@ -146,9 +140,6 @@ Pion *f_init_plateau()
 	Pion *plateau=NULL;
 
 
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
 
 	plateau = (Pion *)malloc(NB_LIGNES*NB_COLONNES*sizeof(Pion));
 	if(plateau == NULL)
@@ -250,9 +241,6 @@ Pion *f_init_plateau()
 	plateau[0*NB_COLONNES+4].couleur = -1;
 	plateau[0*NB_COLONNES+4].valeur = 1;
 
-#ifdef DEBUG
-printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
-#endif
 
 return plateau;
 }
@@ -262,9 +250,6 @@ void f_affiche_plateau(Pion *plateau)
 	int i,j,k;
 
 
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
 
 	printf("\n    ");
 	for(k=0; k<NB_COLONNES; k++)
@@ -298,9 +283,6 @@ void f_affiche_plateau(Pion *plateau)
 	}
 	printf("    ");
 
-#ifdef DEBUG
-	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
-#endif
 }
 
 
@@ -309,9 +291,6 @@ int f_gagnant()
 	int i, j, somme1=0, somme2=0;
 
 
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
 
 	//Quelqu'un est-il arrive sur la ligne de l'autre
 	for(i=0; i<NB_COLONNES; i++)
@@ -338,9 +317,6 @@ int f_gagnant()
 	if(somme2==0)
 		return 1;
 
-#ifdef DEBUG
-	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
-#endif
 	return 0;
 }
 
@@ -354,10 +330,6 @@ int f_bataille(int l, int c)
 {
 	int i, j, mini, maxi, minj, maxj;
 	int somme=0;
-
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
 	mini = l-1<0?0:l-1;
 	maxi = l+1>NB_LIGNES-1?NB_LIGNES-1:l+1;
 	minj = c-1<0?0:c-1;
@@ -372,9 +344,6 @@ int f_bataille(int l, int c)
 	}
 	somme -= plateauDeJeu[l*NB_COLONNES+c].couleur*plateauDeJeu[l*NB_COLONNES+c].valeur;
 
-#ifdef DEBUG
-	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
-#endif
 	if(somme < 0)
 		return -1;
 	if(somme > 0)
@@ -393,7 +362,6 @@ int f_bataille(int l, int c)
 int f_test_mouvement(Pion *plateau, int l1, int c1, int l2, int c2, int couleur)
 {
 #ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
 	printf("de (%d,%d) vers (%d,%d)\n", l1, c1, l2, c2);
 #endif
 	/* Erreur, hors du plateau */
@@ -409,9 +377,6 @@ int f_test_mouvement(Pion *plateau, int l1, int c1, int l2, int c2, int couleur)
 
 	if(l1-l2 >1 || l2-l1 >1 || c1-c2 >1 || c2-c1 >1 || (l1==l2 && c1==c2))
 		return 1;
-#ifdef DEBUG
-	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
-#endif
 	return 0;
 }
 
@@ -427,10 +392,6 @@ int f_bouge_piece(Pion *plateau, int l1, int c1, int l2, int c2, int couleur)
 {
 	int gagnant=0;
 
-
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
 
 	if(f_test_mouvement(plateau, l1, c1, l2, c2, couleur) != 0)
 		return 1;
@@ -463,9 +424,6 @@ int f_bouge_piece(Pion *plateau, int l1, int c1, int l2, int c2, int couleur)
 		}
 	}
 
-#ifdef DEBUG
-	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
-#endif
 	return 0;
 }
 
@@ -683,9 +641,6 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
  * */
 void f_IA(int joueur,Pion* plateau)
 {
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
 	int l1 = 0;
 	int c1 = 0;
 	int l2 = 0;
@@ -711,9 +666,6 @@ void f_humain(int joueur)
 	int l1, l2;
 
 
-#ifdef DEBUG
-	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
-#endif
 
 	printf("joueur ");
 	switch(joueur)
@@ -740,9 +692,6 @@ void f_humain(int joueur)
 		printf("mauvais choix\n");
 	}
 
-#ifdef DEBUG
-	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
-#endif
 }
 
 int main(int argv, char *argc[])
@@ -792,9 +741,6 @@ int main(int argv, char *argc[])
 		joueur = -joueur;
 	}
 
-#ifdef DEBUG
-	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
-#endif
 
 	return 0;
 }
