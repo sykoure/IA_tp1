@@ -9,10 +9,10 @@
 #define INFINI 10000
 #define NB_PION_MAX 14
 #define VALEUR_PION_MAX 22
-#define ALPHA 0.4
-#define BRAVO 0.25
-#define CHARLIE 0.1
-#define DELTA 0.25
+#define ALPHA 0.4			//Nombre de pion  0.4
+#define BRAVO 0.25		//Distance moyenne 0.25
+#define CHARLIE 0.1		//Distance minimale 0.1
+#define DELTA 0.25				//Somme valeur pion
 
 //TODO CHANGER L'ORDRE DE LECTURE DOUBLE FOR
 //#define DEBUG
@@ -75,7 +75,7 @@ void data(Pion *plateau,double tabEuristique[8]){
 	double tab[8] = {nombre_noire,distance_noire_moyenne,distance_noire_min,nombre_blanche,distance_blanche_moyenne,
 	distance_blanche_min,somme_valeur_blanche,somme_valeur_noire};
 
-	
+	#ifdef DEBUG
 		printf("Nombre de pion noirs restants : %f\n",tab[0]);
 		printf("Distance moyenne des pions noirs vers l'arrivée : %f\n",tab[1]);
 		printf("Distance minimale d'un pion noir vers l'arrivée : %f\n",tab[2]);
@@ -84,7 +84,7 @@ void data(Pion *plateau,double tabEuristique[8]){
 		printf("Distance minimale d'un pion blanc vers l'arrivée : %f\n",tab[5]);
 		printf("Somme valeur des pions blancs : %f\n",tab[6]);
 		printf("Somme valeur des pions noirs : %f\n",tab[7]);
-	
+	#endif
 
 	for(i = 0;i < 8;i++){
 		tabEuristique[i] = tab[i];
@@ -518,9 +518,9 @@ double f_eval(Pion * plateau,int joueur)
 		tabEuristique[1] = CHARLIE * tabEuristique[1] / (NB_LIGNES-1);
 		tabEuristique[2] = DELTA * tabEuristique[2] / (NB_LIGNES - 1);
 		valeur = tabEuristique[0] + tabEuristique[7] -tabEuristique[1] -tabEuristique[2];	
-		//#ifdef DEBUG
+		#ifdef DEBUG
 		printf("Valeur du pion noir : %f\n",valeur);
-		//#endif
+		#endif
 	}
 	//Joueur pion blanc
 	else{
@@ -529,9 +529,9 @@ double f_eval(Pion * plateau,int joueur)
 		tabEuristique[4] = CHARLIE * tabEuristique[4] / (NB_LIGNES-1);
 		tabEuristique[5] = DELTA * tabEuristique[5] / (NB_LIGNES - 1);
 		valeur = tabEuristique[3] + tabEuristique[6] - tabEuristique[4] -tabEuristique[5];
-		//#ifdef DEBUG
-		printf("Valeur du pion blanc : %f\n",valeur);
-		//#endif
+		#ifdef DEBUG
+			printf("Valeur du pion blanc : %f\n",valeur);
+		#endif
 	}
 	return valeur;
 }
@@ -576,8 +576,11 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 	int lc2 = *c2;
 	int i, j, k, l;
 
-	printf("ll1 = %d; lc1 = %d; ll2 = %d; lc2 = %d ------ MIN \n",ll1,lc1,ll2,lc2);
-	printf("profondeur = %d  ---- MIN\n",profondeur);
+	#ifdef DEBUG
+		printf("ll1 = %d; lc1 = %d; ll2 = %d; lc2 = %d ------ MIN \n",ll1,lc1,ll2,lc2);
+		printf("profondeur = %d  ---- MIN\n",profondeur);
+	#endif
+
 	Pion* copie[NB_COLONNES*NB_LIGNES];
 	double val_min = FLT_MAX;
 	if(profondeur == PROFONDEUR_MAX){
@@ -589,11 +592,15 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 				if(plateau[i*NB_COLONNES+j].couleur == joueur){
 					for(k = j-1;k <= j+1; k++){
 						for(l = i-1;l <= i+1;l++){
-							if(!f_test_mouvement(plateau, i, j, l, k, joueur)){
+							if((!f_test_mouvement(plateau, i, j, l, k, joueur))&&((l != i)&&(k !=j))){
 								f_copie_plateau(plateau,copie);
 								f_bouge_piece(copie,i,j,l,k,joueur);
 								double val = f_max(copie, -joueur, profondeur+1, &ll1, &lc1, &ll2, &lc2);
-								printf("valeur %f ------ fonction MIN\n",val);
+
+								#ifdef DEBUG
+									printf("valeur %f ------ fonction MIN\n",val);
+								#endif
+
 								if(val < val_min){
 									val_min = val;
 									*l1 = i;
@@ -619,8 +626,10 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 	int ll2 = *l2;
 	int lc2 = *c2;
 	int i, j, k, l;
-	printf("ll1 = %d; lc1 = %d; ll2 = %d; lc2 = %d ------ MAX  \n",ll1,lc1,ll2,lc2);
-	printf("profondeur = %d  ---- MAX\n",profondeur);
+	#ifdef DEBUG
+		printf("ll1 = %d; lc1 = %d; ll2 = %d; lc2 = %d ------ MAX  \n",ll1,lc1,ll2,lc2);
+		printf("profondeur = %d  ---- MAX\n",profondeur);
+	#endif
 	//printf("")
 	Pion* copie[NB_COLONNES*NB_LIGNES];
 	
@@ -634,15 +643,22 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 				if(plateau[i*NB_COLONNES+j].couleur == joueur){
 					for(k = j-1;k <= j+1; k++){
 						for(l = i-1;l <= i+1;l++){
-							if(!f_test_mouvement(plateau, i, j, l, k, joueur)){
-							
-								printf("i = %d;j = %d;k = %d;l = %d\n",i,j,k,l);
+							if((!f_test_mouvement(plateau, i, j, l, k, joueur))&&((l != i)&&(k !=j))){
+								
+								#ifdef DEBUG
+									printf("i = %d;j = %d;k = %d;l = %d\n",i,j,k,l);
+								#endif
+
 								f_copie_plateau(plateau,copie);
 								f_bouge_piece(copie,i,j,l,k,joueur);
 								double val = f_min(copie, -joueur, profondeur+1, &ll1, &lc1, &ll2, &lc2);
 								if(val > val_max){
 									val_max = val;
-									printf("valeur %f ------ fonction MAX\n",val);
+
+									#ifdef DEBUG
+										printf("valeur %f ------ fonction MAX\n",val);
+									#endif
+
 									*l1 = i;
 									*c1 = j;
 									*l2 = l;
@@ -653,8 +669,11 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 					}
 				}
 			}
-		}				
-		printf("RETURN %f\n",val_max);
+		}	
+
+		#ifdef DEBUG			
+			printf("RETURN %f\n",val_max);
+		#endif
 		return val_max;	
 	}			
 }
@@ -728,7 +747,7 @@ void f_humain(int joueur)
 
 int main(int argv, char *argc[])
 {
-	int fin = 0,mode=0 , ret, joueur = 1;
+	int fin = 0,mode=0 , ret, joueur = -1;
 
 	plateauDeJeu = f_init_plateau();
 	f_eval(plateauDeJeu,joueur);
