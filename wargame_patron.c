@@ -30,11 +30,11 @@ void f_affiche_plateau(Pion *plateau);
 int f_convert_char2int(char c);
 char f_convert_int2char(int i);
 Pion *f_init_plateau();
-void *data();
+void data();
 double f_max(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2,int *c2);
 double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2,int *c2);
 
-void *data(Pion *plateau,double tabEuristique[8]){
+void data(Pion *plateau,double tabEuristique[8]){
 	double distance_noire_min = FLT_MAX;
 	double distance_blanche_min = FLT_MAX;
 	double distance_noire_moyenne = 0;
@@ -554,7 +554,7 @@ void f_copie_plateau(Pion* source, Pion* destination)
 Pion* f_raz_plateau()
 {
 	Pion* jeu = NULL;
-	int i, j,k,l;
+	int i, j;
 	jeu = (Pion *) malloc(NB_LIGNES * NB_COLONNES * sizeof (Pion));
 	for (i = 0; i < NB_LIGNES; i++)
 	{
@@ -587,23 +587,19 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 		for(i = 0;i < NB_COLONNES;i++){
 			for(j = 0;j < NB_LIGNES;j++){
 				if(plateau[i*NB_COLONNES+j].couleur == joueur){
-					for(k = -1;k <= 1; k++){
-						for(l = -1;l <= 1;l++){
-							if(plateau[(i+l)*NB_COLONNES+(j+k)].couleur == 0){
-								if(((i == 0)&&(l == -1))||((i == NB_LIGNES-1)&&(l == 1))){}
-								else if(((j == 0)&&(k == -1))||((j == NB_COLONNES-1)&&(k == 1))){}
-								else{
-									f_copie_plateau(plateau,copie);
-									f_bouge_piece(copie,i,j,i+l,j+k,joueur);
-									double val = f_max(copie, -joueur, profondeur+1, &ll1, &lc1, &ll2, &lc2);
-									printf("valeur %f ------ fonction MIN\n",val);
-									if(val < val_min){
-										val_min = val;
-										*l1 = i;
-										*c1 = j;
-										*l2 = i+l;
-										*c2 = j+k;
-									}
+					for(k = j-1;k <= j+1; k++){
+						for(l = i-1;l <= i+1;l++){
+							if(!f_test_mouvement(plateau, i, j, l, k, joueur)){
+								f_copie_plateau(plateau,copie);
+								f_bouge_piece(copie,i,j,l,k,joueur);
+								double val = f_max(copie, -joueur, profondeur+1, &ll1, &lc1, &ll2, &lc2);
+								printf("valeur %f ------ fonction MIN\n",val);
+								if(val < val_min){
+									val_min = val;
+									*l1 = i;
+									*c1 = j;
+									*l2 = l;
+									*c2 = k;
 								}
 							}
 						}
@@ -636,25 +632,21 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 		for(i = 0;i < NB_COLONNES;i++){
 			for(j = 0;j < NB_LIGNES;j++){
 				if(plateau[i*NB_COLONNES+j].couleur == joueur){
-					for(k = -1;k <= 1; k++){
-						for(l = -1;l <= 1;l++){
-							if(plateau[(i+l)*NB_COLONNES+(j+k)].couleur == 0){
-								if(((i == 0)&&(l == -1))||((i == NB_LIGNES-1)&&(l == 1))){}
-								else if(((j == 0)&&(k == -1))||((j == NB_COLONNES-1)&&(k == 1))){}
-								else{
-									printf("i = %d;j = %d;k = %d;l = %d\n",i,j,k,l);
-
-									f_copie_plateau(plateau,copie);
-									f_bouge_piece(copie,i,j,i+l,j+k,joueur);
-									double val = f_min(copie, -joueur, profondeur+1, &ll1, &lc1, &ll2, &lc2);
-									if(val > val_max){
-										val_max = val;
-										printf("valeur %f ------ fonction MAX\n",val);
-										*l1 = i;
-										*c1 = j;
-										*l2 = l*i;
-										*c2 = k+j;
-									}
+					for(k = j-1;k <= j+1; k++){
+						for(l = i-1;l <= i+1;l++){
+							if(!f_test_mouvement(plateau, i, j, l, k, joueur)){
+							
+								printf("i = %d;j = %d;k = %d;l = %d\n",i,j,k,l);
+								f_copie_plateau(plateau,copie);
+								f_bouge_piece(copie,i,j,l,k,joueur);
+								double val = f_min(copie, -joueur, profondeur+1, &ll1, &lc1, &ll2, &lc2);
+								if(val > val_max){
+									val_max = val;
+									printf("valeur %f ------ fonction MAX\n",val);
+									*l1 = i;
+									*c1 = j;
+									*l2 = l;
+									*c2 = k;
 								}
 							}
 						}
@@ -662,7 +654,7 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 				}
 			}
 		}				
-		printf("RETURN %d\n",val_max);
+		printf("RETURN %f\n",val_max);
 		return val_max;	
 	}			
 }
@@ -681,6 +673,7 @@ void f_IA(int joueur,Pion* plateau)
 	int c2 = 0;
 	double valeur;
 	valeur = f_max(plateau,joueur,0,&l1,&c1,&l2,&c2);
+
 	f_bouge_piece(plateau,l1,c1,l2,c2,joueur);
 
 #ifdef DEBUG
