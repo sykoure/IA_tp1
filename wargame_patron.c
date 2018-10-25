@@ -112,6 +112,34 @@ char f_convert_int2char(int i)
 	return (char)i+'A';
 }
 
+Pion *f_init_plateau0()
+{
+	int i, j;
+	Pion *plateau=NULL;
+
+
+#ifdef DEBUG
+	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
+#endif
+
+	plateau = (Pion *)malloc(NB_LIGNES*NB_COLONNES*sizeof(Pion));
+	if(plateau == NULL)
+	{
+		printf("error: unable to allocate memory\n");
+		exit(EXIT_FAILURE);
+	}
+
+	for(i=0; i<NB_LIGNES; i++)
+	{
+		for(j=0; j<NB_COLONNES; j++)
+		{
+			plateau[i*NB_COLONNES+j].couleur = 0;
+			plateau[i*NB_COLONNES+j].valeur = 0;
+		}
+	}
+	return plateau;
+}
+
 Pion *f_init_plateau()
 {
 	int i, j;
@@ -680,7 +708,7 @@ void f_humain(int joueur)
 
 int main(int argv, char *argc[])
 {
-	int fin = 0,mode=0 , ret, joueur = -1;
+	int fin = 0,mode=0 , ret, joueur = 1;
 
 	plateauDeJeu = f_init_plateau();
 	f_eval(plateauDeJeu,joueur);
