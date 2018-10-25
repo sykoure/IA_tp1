@@ -3,7 +3,7 @@
 #include <string.h>
 #include <float.h>
 
-#define PROFONDEUR_MAX 1
+#define PROFONDEUR_MAX 3
 #define NB_LIGNES 10
 #define NB_COLONNES 10
 #define INFINI 10000
@@ -517,7 +517,7 @@ double f_eval(Pion * plateau,int joueur)
 		tabEuristique[7] = BRAVO * tabEuristique[7] / VALEUR_PION_MAX;
 		tabEuristique[1] = CHARLIE * tabEuristique[1] / (NB_LIGNES-1);
 		tabEuristique[2] = DELTA * tabEuristique[2] / (NB_LIGNES - 1);
-		valeur = tabEuristique[0] + tabEuristique[7] -tabEuristique[1] +tabEuristique[2];	
+		valeur = tabEuristique[0] + tabEuristique[7] -tabEuristique[1] -tabEuristique[2];	
 		//#ifdef DEBUG
 		printf("Valeur du pion noir : %f\n",valeur);
 		//#endif
@@ -528,7 +528,7 @@ double f_eval(Pion * plateau,int joueur)
 		tabEuristique[6] = BRAVO * tabEuristique[6] / VALEUR_PION_MAX;
 		tabEuristique[4] = CHARLIE * tabEuristique[4] / (NB_LIGNES-1);
 		tabEuristique[5] = DELTA * tabEuristique[5] / (NB_LIGNES - 1);
-		valeur = tabEuristique[3] + tabEuristique[6] - tabEuristique[4] +tabEuristique[5];
+		valeur = tabEuristique[3] + tabEuristique[6] - tabEuristique[4] -tabEuristique[5];
 		//#ifdef DEBUG
 		printf("Valeur du pion blanc : %f\n",valeur);
 		//#endif
