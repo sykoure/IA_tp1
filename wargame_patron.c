@@ -472,30 +472,39 @@ double f_eval(Pion * plateau,int joueur)
 {
 	double tabEuristique[8];
 	data(plateau,tabEuristique);
-	double valeur = 0;
+	double valeurnoire = 0;
+	double valeurblanche = 0;
+
 	//Joueur pion noir
-	if(joueur == -1){
-		tabEuristique[0] = ALPHA * tabEuristique[0] / NB_PION_MAX;
-		tabEuristique[7] = BRAVO * tabEuristique[7] / VALEUR_PION_MAX;
-		tabEuristique[1] = CHARLIE * tabEuristique[1] / (NB_LIGNES-1);
-		tabEuristique[2] = DELTA * tabEuristique[2] / (NB_LIGNES - 1);
-		valeur = tabEuristique[0] + tabEuristique[7] -tabEuristique[1] -tabEuristique[2];
-		#ifdef DEBUG
-		printf("Valeur du pion noir : %f\n",valeur);
-		#endif
-	}
+	tabEuristique[0] = ALPHA * tabEuristique[0] / NB_PION_MAX;									// Nombre de pion blancs restants
+	tabEuristique[7] = BRAVO * tabEuristique[7] / VALEUR_PION_MAX;								// Somme valeur des pions blancs
+	tabEuristique[1] = CHARLIE * tabEuristique[1] / (NB_LIGNES-1);								// Distance moyenne des pions blancs vers l'arrivée
+	tabEuristique[2] = DELTA * tabEuristique[2] / (NB_LIGNES - 1);								// Distance minimale des pions blancs vers l'arrivée
+
 	//Joueur pion blanc
+	tabEuristique[3] = ALPHA * tabEuristique[3] / NB_PION_MAX;									// Nombre de pion blancs restants
+	tabEuristique[6] = BRAVO * tabEuristique[6] / VALEUR_PION_MAX;								// Somme valeur des pions blancs
+	tabEuristique[4] = CHARLIE * tabEuristique[4] / (NB_LIGNES-1);								// Distance moyenne des pions blancs vers l'arrivée
+	tabEuristique[5] = DELTA * tabEuristique[5] / (NB_LIGNES - 1);								// Distance minimale des pions blancs vers l'arrivée
+
+	//valeur noire finale
+	valeurnoire = 1.5 + tabEuristique[0] + tabEuristique[7] -(tabEuristique[1] +tabEuristique[2])/2 + (tabEuristique[4] +tabEuristique[5])/2 ;
+
+	//valeur blanche finale
+	valeurblanche = 2 + tabEuristique[3] + tabEuristique[6] -(tabEuristique[4] +tabEuristique[5])/2 + (tabEuristique[1] +tabEuristique[2])/2;
+
+	if(joueur == -1){
+		#ifdef DEBUG
+			printf("Valeur du pion noir : %f\n",valeur);
+		#endif
+		return valeurnoire;
+	}
 	else{
-		tabEuristique[3] = ALPHA * tabEuristique[3] / NB_PION_MAX;
-		tabEuristique[6] = BRAVO * tabEuristique[6] / VALEUR_PION_MAX;
-		tabEuristique[4] = CHARLIE * tabEuristique[4] / (NB_LIGNES-1);
-		tabEuristique[5] = DELTA * tabEuristique[5] / (NB_LIGNES - 1);
-		valeur = tabEuristique[3] + tabEuristique[6] - tabEuristique[4] -tabEuristique[5];
 		#ifdef DEBUG
 			printf("Valeur du pion blanc : %f\n",valeur);
 		#endif
+		return valeurblanche;
 	}
-	return valeur;
 }
 
 //copie du plateau
@@ -596,7 +605,6 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 		printf("ll1 = %d; lc1 = %d; ll2 = %d; lc2 = %d ------ MAX  \n",ll1,lc1,ll2,lc2);
 		printf("profondeur = %d  ---- MAX\n",profondeur);
 	#endif
-	//printf("")
 	Pion* copie[NB_COLONNES*NB_LIGNES];
 
 	double val_max = FLT_MIN;
