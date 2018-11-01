@@ -15,7 +15,6 @@
 #define CHARLIE 0.3		//Distance minimale 0.1
 #define DELTA 0.25				//Somme valeur pion
 
-//TODO FIX A MISTAKE IN THE F_MIN FUNCTION
 //#define DEBUG
 
 
@@ -618,7 +617,7 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 	#endif
 	Pion* copie[NB_COLONNES*NB_LIGNES];
 
-	double val_max = FLT_MIN;
+	double val_max = -FLT_MAX+1;
 	if(profondeur == PROFONDEUR_MAX){
 		return f_eval(plateau,joueur);
 	}
