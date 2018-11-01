@@ -4,16 +4,16 @@
 #include <float.h>
 #include <time.h>
 
-#define PROFONDEUR_MAX 2
+#define PROFONDEUR_MAX 4
 #define NB_LIGNES 10
 #define NB_COLONNES 10
 #define INFINI 10000
 #define NB_PION_MAX 14
 #define VALEUR_PION_MAX 22
 #define ALPHA 0.2			//Nombre de pion  0.4
-#define BRAVO 0.25		//Distance moyenne 0.25
-#define CHARLIE 0.3		//Distance minimale 0.1
-#define DELTA 0.25				//Somme valeur pion
+#define BRAVO 0.25			//Distance moyenne 0.25
+#define CHARLIE 0.3			//Distance minimale 0.1
+#define DELTA 0.25			//Somme valeur pion
 
 //#define DEBUG
 
@@ -467,6 +467,7 @@ int f_valeur(Pion* jeu, int joueur)
 	return valeur;
 }
 
+
 //fonction d'évaluation
 double f_eval(Pion * plateau,int joueur)
 {
@@ -494,11 +495,20 @@ double f_eval(Pion * plateau,int joueur)
 	if(tabEuristique[5] == 0)
 		tabEuristique[5] = -999;
 
-	//valeur noire finale
-	valeurnoire = tabEuristique[0] + tabEuristique[7] -(tabEuristique[1] +tabEuristique[2])/2 + (tabEuristique[4] +tabEuristique[5])/1.5 ;
+	if(PROFONDEUR_MAX%2 == 1){
+		//valeur noire finale
+		valeurnoire = tabEuristique[0] + tabEuristique[7] -(tabEuristique[1] +tabEuristique[2])/2 + (tabEuristique[4] +tabEuristique[5])/1.5 ;	
 
-	//valeur blanche finale
-	valeurblanche = tabEuristique[3] + tabEuristique[6] -(tabEuristique[4] +tabEuristique[5])/2 + (tabEuristique[1] +tabEuristique[2])/1.5;
+		//valeur blanche finale
+		valeurblanche = tabEuristique[3] + tabEuristique[6] -(tabEuristique[4] +tabEuristique[5])/2 + (tabEuristique[1] +tabEuristique[2])/1.5;
+	}
+	else{
+		//valeur noire finale
+		valeurnoire = (tabEuristique[1] +tabEuristique[2])/2 - (tabEuristique[4] +tabEuristique[5])/1.5 + (tabEuristique[0] + tabEuristique[7]);	
+
+		//valeur blanche finale
+		valeurblanche = (tabEuristique[4] +tabEuristique[5])/2 - (tabEuristique[1] +tabEuristique[2])/1.5 - (tabEuristique[0] + tabEuristique[7]);
+	}
 
 	if(joueur == -1){
 		#ifdef DEBUG
@@ -512,6 +522,10 @@ double f_eval(Pion * plateau,int joueur)
 		#endif
 		return valeurblanche;
 	}
+
+		float val;
+
+	return val;
 }
 
 //copie du plateau
@@ -555,6 +569,7 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 	int i, j, k, l;
 	int nb_alea;
 
+
 	#ifdef DEBUG
 		printf("ll1 = %d; lc1 = %d; ll2 = %d; lc2 = %d ------ MIN \n",ll1,lc1,ll2,lc2);
 		printf("profondeur = %d  ---- MIN\n",profondeur);
@@ -597,7 +612,6 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 		nb_noeuds_totals += nb_noeuds_visites;
 		nb_noeuds_visites = 0;
 
-		printf("RETURN %f\n",val_min);
 		return val_min;
 	}
 }
@@ -657,7 +671,6 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 		}
 		nb_noeuds_totals += nb_noeuds_visites;
 		nb_noeuds_visites = 0;
-
 		return val_max;
 	}
 }
