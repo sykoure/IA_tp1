@@ -489,7 +489,7 @@ double f_eval(Pion * plateau,int joueur)
 	tabEuristique[5] = DELTA * tabEuristique[5] / (NB_LIGNES - 1);								// Distance minimale des pions blancs vers l'arrivée
 
 	//On vérifie qu'une pièce n'est pas à une case de l'arrivée
-	if(tabEuristique[2] == 0) 
+	if(tabEuristique[2] == 0)
 		tabEuristique[2] = -999;
 
 	if(tabEuristique[5] == 0)
@@ -497,14 +497,14 @@ double f_eval(Pion * plateau,int joueur)
 
 	if(PROFONDEUR_MAX%2 == 1){
 		//valeur noire finale
-		valeurnoire = tabEuristique[0] + tabEuristique[7] -(tabEuristique[1] +tabEuristique[2])/2 + (tabEuristique[4] +tabEuristique[5])/1.5 ;	
+		valeurnoire = tabEuristique[0] + tabEuristique[7] -(tabEuristique[1] +tabEuristique[2])/2 + (tabEuristique[4] +tabEuristique[5])/1.5 ;
 
 		//valeur blanche finale
 		valeurblanche = tabEuristique[3] + tabEuristique[6] -(tabEuristique[4] +tabEuristique[5])/2 + (tabEuristique[1] +tabEuristique[2])/1.5;
 	}
 	else{
 		//valeur noire finale
-		valeurnoire = (tabEuristique[1] +tabEuristique[2])/2 - (tabEuristique[4] +tabEuristique[5])/1.5 + (tabEuristique[0] + tabEuristique[7]);	
+		valeurnoire = (tabEuristique[1] +tabEuristique[2])/2 - (tabEuristique[4] +tabEuristique[5])/1.5 + (tabEuristique[0] + tabEuristique[7]);
 
 		//valeur blanche finale
 		valeurblanche = (tabEuristique[4] +tabEuristique[5])/2 - (tabEuristique[1] +tabEuristique[2])/1.5 - (tabEuristique[0] + tabEuristique[7]);
@@ -591,7 +591,7 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 								f_bouge_piece(copie,i,j,l,k,joueur);
 								nb_noeuds_visites ++;
 								double val = f_max(copie, -joueur, profondeur+1, &ll1, &lc1, &ll2, &lc2);
-								
+
 								#ifdef DEBUG
 									printf("valeur %f ------ fonction MIN\n",val);
 								#endif
@@ -646,7 +646,7 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1,int* l2
 								#ifdef DEBUG
 									printf("i = %d;j = %d;k = %d;l = %d\n",i,j,k,l);
 								#endif
-								nb_alea = (rand() % 100) + 1; 
+								nb_alea = (rand() % 100) + 1;
 								f_copie_plateau(plateau,copie);
 								f_bouge_piece(copie,i,j,l,k,joueur);
 								nb_noeuds_visites ++;
@@ -796,6 +796,7 @@ int main(int argv, char *argc[])
 	printf("\n###########################################################\n");
 	printf("\t\t\tSTATISTIQUES\n");
 	printf("Profondeur : %d\n", PROFONDEUR_MAX);
+	printf("Nb coups : %d\n", nb_appels);
 	printf("Temps total d'execution : %f sec\t Moyenne de %f ms par tour\n", total_time,
 																																				total_time/nb_appels*1000);
 	printf("%d noeuds explores au total\t Moyenne de %d par tour\n", nb_noeuds_totals,
