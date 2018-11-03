@@ -3,7 +3,7 @@
 #include <string.h>
 #include <float.h>
 
-#define PROFONDEUR_MAX 2
+#define PROFONDEUR_MAX 4
 #define NB_LIGNES 10
 #define NB_COLONNES 10
 #define NB_PION_MAX 14
@@ -566,7 +566,7 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 									printf("valeur beta %f ------ fonction MIN\n",beta);
 								#endif
 
-								if(alpha > coupure){
+								if(alpha >= coupure){
 									nb_coupure ++;
 									return alpha;
 								}
@@ -641,7 +641,7 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1, int* l
 									nb_coupure ++;
 									return beta;
 								}
-								else if(coupure > alpha){
+								else if(coupure >= alpha){
 									alpha = coupure;
 								}
 								ll1 = i;
