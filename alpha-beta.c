@@ -3,7 +3,7 @@
 #include <string.h>
 #include <float.h>
 
-#define PROFONDEUR_MAX 5
+#define PROFONDEUR_MAX 2
 #define NB_LIGNES 10
 #define NB_COLONNES 10
 #define NB_PION_MAX 14
@@ -28,14 +28,15 @@ int nb_appels = 0;
 int nb_noeuds_visites = 0;
 int nb_noeuds_totals = 0;
 double total_time = 0.0;
+int nb_coupure = 0;
 
 void f_affiche_plateau(Pion *plateau);
 int f_convert_char2int(char c);
 char f_convert_int2char(int i);
 Pion *f_init_plateau();
 void data();
-double f_max(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2,int *c2, double* alpha, double* beta);
-double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2,int *c2, double* alpha, double* beta);
+double f_max(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2,int *c2, double alpha, double beta);
+double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2,int *c2, double alpha, double beta);
 
 void data(Pion *plateau,double tabEuristique[8]){
 	double distance_noire_min = FLT_MAX;
@@ -529,13 +530,12 @@ Pion* f_raz_plateau()
 }
 
 //Fonction min trouve le minimum des noeuds fils
-double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2,int *c2, double* alpha, double* beta)
+double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2,int *c2, double alpha, double beta)
 {
 	int ll1 = *l1;
 	int lc1 = *c1;
 	int ll2 = *l2;
 	int lc2 = *c2;
-	double lbeta = *beta;
 	int i, j, k, l;
 
 	#ifdef DEBUG
@@ -560,24 +560,23 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 								f_copie_plateau(plateau,copie);
 								f_bouge_piece(copie,i,j,l,k,joueur);
 								nb_noeuds_visites ++;
-								int coupure = f_max(copie, -joueur, profondeur+1, l1, c1, l2, c2, alpha, &lbeta);
-								*beta = lbeta < *beta ? lbeta : *beta;
+								float coupure = f_max(copie, -joueur, profondeur+1, l1, c1, l2, c2, alpha, beta);
 
 								#ifdef DEBUG
-									printf("valeur beta %f ------ fonction MIN\n",*beta);
+									printf("valeur beta %f ------ fonction MIN\n",beta);
 								#endif
 
-								if(*beta >= *alpha){
-									*alpha = *beta;
-									return 1;
+								if(alpha > coupure){
+									nb_coupure ++;
+									return alpha;
 								}
-								else{
-									// val_min = val;
-									ll1 = i;
-									lc1 = j;
-									ll2 = l;
-									lc2 = k;
+								else if(coupure < beta) {
+									beta = coupure;
 								}
+								ll1 = i;
+								lc1 = j;
+								ll2 = l;
+								lc2 = k;
 							}
 						}
 					}
@@ -592,18 +591,17 @@ double f_min(Pion *plateau, int joueur, int profondeur, int *l1, int *c1,int *l2
 		*l2 = ll2;
 		*c2 = lc2;
 
-		return 0;
+		return beta;
 	}
 }
 
 //Fonction max trouve le maximum des noeuds fils
-double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1, int* l2, int* c2, double* alpha, double* beta)
+double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1, int* l2, int* c2, double alpha, double beta)
 {
 	int ll1 = *l1;
 	int lc1 = *c1;
 	int ll2 = *l2;
 	int lc2 = *c2;
-	double lalpha = *alpha;
 	int i, j, k, l;
 	#ifdef DEBUG
 		printf("ll1 = %d; lc1 = %d; ll2 = %d; lc2 = %d ------ MAX  \n",ll1,lc1,ll2,lc2);
@@ -633,23 +631,23 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1, int* l
 								f_copie_plateau(plateau,copie);
 								f_bouge_piece(copie,i,j,l,k,joueur);
 								nb_noeuds_visites ++;
-								int coupure = f_min(copie, -joueur, profondeur+1, l1, c1, l2, c2, &lalpha, beta);
-								*alpha = lalpha > *alpha ? lalpha : *alpha;
+								float coupure = f_min(copie, -joueur, profondeur+1, l1, c1, l2, c2, alpha, beta);
 
 								#ifdef DEBUG
-									printf("valeur alpha %f ------ fonction MAX\n", *alpha);
+									printf("valeur alpha %f ------ fonction MAX\n", alpha);
 								#endif
 
-								if(*alpha >= *beta){
-									*beta = *alpha;
-									return 1;
+								if(coupure > beta){
+									nb_coupure ++;
+									return beta;
 								}
-								else{
-									ll1 = i;
-									lc1 = j;
-									ll2 = l;
-									lc2 = k;
+								else if(coupure > alpha){
+									alpha = coupure;
 								}
+								ll1 = i;
+								lc1 = j;
+								ll2 = l;
+								lc2 = k;
 							}
 						}
 					}
@@ -667,7 +665,7 @@ double f_max(Pion *plateau, int joueur, int profondeur, int* l1, int* c1, int* l
 		#ifdef DEBUG
 			printf("RETURN %f\n",val_max);
 		#endif
-		return 0;
+		return alpha;
 	}
 }
 
@@ -688,7 +686,7 @@ void f_IA(int joueur,Pion* plateau)
 
 	nb_appels ++;
 	gettimeofday(&begin, NULL);
-	alpha = f_max(plateau,joueur,0,&l1,&c1,&l2,&c2, &alpha, &beta);
+	alpha = f_max(plateau,joueur,0,&l1,&c1,&l2,&c2, alpha, beta);
 	gettimeofday(&end, NULL);
 
 	double tmp = (double) (end.tv_usec - begin.tv_usec) / 1000000 + (double) (end.tv_sec - begin.tv_sec);
@@ -791,7 +789,8 @@ int main(int argv, char *argc[])
 	printf("\n###########################################################\n");
 	printf("\t\t\tSTATISTIQUES\n");
 	printf("Profondeur : %d\n", PROFONDEUR_MAX);
-		printf("Nb coups : %d\n", nb_appels);
+	printf("Nb coups : %d\n", nb_appels);
+	printf("Nb coupures : %d\n", nb_coupure);
 	printf("Temps total d'execution : %f sec\t Moyenne de %f ms par tour\n", total_time,
 																																				total_time/nb_appels*1000);
 	printf("%d noeuds explores au total\t Moyenne de %d par tour\n", nb_noeuds_totals,
