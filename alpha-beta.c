@@ -472,30 +472,59 @@ double f_eval(Pion * plateau,int joueur)
 {
 	double tabEuristique[8];
 	data(plateau,tabEuristique);
-	double valeur = 0;
+	double valeurnoire = 0;
+	double valeurblanche = 0;
+
 	//Joueur pion noir
-	if(joueur == -1){
-		tabEuristique[0] = ALPHA * tabEuristique[0] / NB_PION_MAX;
-		tabEuristique[7] = BRAVO * tabEuristique[7] / VALEUR_PION_MAX;
-		tabEuristique[1] = CHARLIE * tabEuristique[1] / (NB_LIGNES-1);
-		tabEuristique[2] = DELTA * tabEuristique[2] / (NB_LIGNES - 1);
-		valeur = tabEuristique[0] + tabEuristique[7] -tabEuristique[1] -tabEuristique[2];
-		#ifdef DEBUG
-		printf("Valeur du pion noir : %f\n",valeur);
-		#endif
-	}
+	tabEuristique[0] = ALPHA * tabEuristique[0] / NB_PION_MAX;									// Nombre de pion blancs restants
+	tabEuristique[7] = BRAVO * tabEuristique[7] / VALEUR_PION_MAX;								// Somme valeur des pions blancs
+	tabEuristique[1] = CHARLIE * tabEuristique[1] / (NB_LIGNES-1);								// Distance moyenne des pions blancs vers l'arrivée
+	tabEuristique[2] = DELTA * tabEuristique[2] / (NB_LIGNES - 1);								// Distance minimale des pions blancs vers l'arrivée
+
 	//Joueur pion blanc
-	else{
-		tabEuristique[3] = ALPHA * tabEuristique[3] / NB_PION_MAX;
-		tabEuristique[6] = BRAVO * tabEuristique[6] / VALEUR_PION_MAX;
-		tabEuristique[4] = CHARLIE * tabEuristique[4] / (NB_LIGNES-1);
-		tabEuristique[5] = DELTA * tabEuristique[5] / (NB_LIGNES - 1);
-		valeur = tabEuristique[3] + tabEuristique[6] - tabEuristique[4] -tabEuristique[5];
-		#ifdef DEBUG
-			printf("Valeur du pion blanc : %f\n",valeur);
-		#endif
+	tabEuristique[3] = ALPHA * tabEuristique[3] / NB_PION_MAX;									// Nombre de pion blancs restants
+	tabEuristique[6] = BRAVO * tabEuristique[6] / VALEUR_PION_MAX;								// Somme valeur des pions blancs
+	tabEuristique[4] = CHARLIE * tabEuristique[4] / (NB_LIGNES-1);								// Distance moyenne des pions blancs vers l'arrivée
+	tabEuristique[5] = DELTA * tabEuristique[5] / (NB_LIGNES - 1);								// Distance minimale des pions blancs vers l'arrivée
+
+	//On vérifie qu'une pièce n'est pas à une case de l'arrivée
+	if(tabEuristique[2] == 0)
+		tabEuristique[2] = -999;
+
+	if(tabEuristique[5] == 0)
+		tabEuristique[5] = -999;
+
+	if(PROFONDEUR_MAX%2 == 1){
+		//valeur noire finale
+		valeurnoire = tabEuristique[0] + tabEuristique[7] -(tabEuristique[1] +tabEuristique[2])/2 + (tabEuristique[4] +tabEuristique[5])/1.5 ;
+
+		//valeur blanche finale
+		valeurblanche = tabEuristique[3] + tabEuristique[6] -(tabEuristique[4] +tabEuristique[5])/2 + (tabEuristique[1] +tabEuristique[2])/1.5;
 	}
-	return valeur;
+	else{
+		//valeur noire finale
+		valeurnoire = (tabEuristique[1] +tabEuristique[2])/2 - (tabEuristique[4] +tabEuristique[5])/1.5 + (tabEuristique[0] + tabEuristique[7]);
+
+		//valeur blanche finale
+		valeurblanche = (tabEuristique[4] +tabEuristique[5])/2 - (tabEuristique[1] +tabEuristique[2])/1.5 - (tabEuristique[0] + tabEuristique[7]);
+	}
+
+	if(joueur == -1){
+		#ifdef DEBUG
+			printf("Valeur du pion noir : %f\n",valeurnoire);
+		#endif
+		return valeurnoire;
+	}
+	else{
+		#ifdef DEBUG
+			printf("Valeur du pion blanc : %f\n",valeurblanche);
+		#endif
+		return valeurblanche;
+	}
+
+		float val;
+
+	return val;
 }
 
 //copie du plateau
